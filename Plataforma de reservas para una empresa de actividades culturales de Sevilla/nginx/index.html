@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reservas Sevilla</title>
+</head>
+<body>
+    <h1>Plataforma de Reservas</h1>
+
+    <p>Aplicación de ejemplo para la práctica de Docker.</p>
+
+    <h2>Crear reserva</h2>
+
+    <form id="formulario">
+        <label>Nombre:</label>
+        <input type="text" id="nombre" required>
+
+        <br><br>
+
+        <label>Actividad:</label>
+        <input type="text" id="actividad" required>
+
+        <br><br>
+
+        <button type="submit">Reservar</button>
+    </form>
+
+    <h2>Reservas</h2>
+    <button onclick="cargarReservas()">Actualizar</button>
+
+    <ul id="lista"></ul>
+
+    <script>
+        async function cargarReservas() {
+            const respuesta = await fetch("/api/reservas");
+            const reservas = await respuesta.json();
+
+            const lista = document.getElementById("lista");
+            lista.innerHTML = "";
+
+            reservas.forEach(reserva => {
+                const elemento = document.createElement("li");
+                elemento.textContent =
+                    reserva.nombre + " - " + reserva.actividad;
+                lista.appendChild(elemento);
+            });
+        }
+
+        document.getElementById("formulario").addEventListener("submit", async function(evento) {
+            evento.preventDefault();
+
+            const nombre = document.getElementById("nombre").value;
+            const actividad = document.getElementById("actividad").value;
+
+            await fetch("/api/reservas", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    nombre: nombre,
+                    actividad: actividad
+                })
+            });
+
+            document.getElementById("formulario").reset();
+            cargarReservas();
+        });
+
+        cargarReservas();
+    </script>
+</body>
+</html>
